@@ -1,0 +1,21 @@
+﻿/*
+select *
+	from users inner join sms on users.id=sms.user_id
+	left join 
+		(select * from 
+			-- This allows me to pick reference codes that I want to show up as columns in the query
+			crosstab('select codeable_id, reference_code_id, reference_code_id from reference_code_assignments as rca where codeable_type=''User'' order by codeable_id ASC, reference_code_id ASC') 
+			as ct(user_id integer, reference_code_id_0 integer, reference_code_id_1 integer, reference_code_id_2 integer)
+		) as reference_codes_subquery
+		on reference_codes_subquery.user_id=users.id
+	limit 10;
+*/
+
+select users.id as user_id, users.calc_num_savings_txns, calc_num_non_savings_txns, time_zone_offset, sms.created_at as message_time, sms.outgoing,
+	(select count(*) from reference_code_assignments where reference_code_id=1 AND codeable_id=users.id AND codeable_type='User') as has_code
+
+	-- Need to figure out metrics such as response time, number of responses, etc
+	from users inner join sms on users.id=sms.user_id
+	limit 10;
+	
+
